@@ -16,6 +16,8 @@ class Product:
 class Window:
 	def __init__(self, title: str, conn: sqlite3.Connection):
 		self.conn = conn
+		self.sort_column = None
+		self.sort_reverse = False
 		self.create_window(title)
 		self.root.mainloop()
 
@@ -48,10 +50,10 @@ class Window:
 		columns = ("name", "price", "quantity")
 		self.products_table = ttk.Treeview(self.table_frame, columns=columns, show="headings")
 		
-		# Define column headings
-		self.products_table.heading("name", text="Product Name")
-		self.products_table.heading("price", text="Price ($)")
-		self.products_table.heading("quantity", text="Quantity")
+		# Define column headings with sorting functionality
+		self.products_table.heading("name", text="Product Name", command=lambda: self.sort_by_column("name"))
+		self.products_table.heading("price", text="Price ($)", command=lambda: self.sort_by_column("price"))
+		self.products_table.heading("quantity", text="Quantity", command=lambda: self.sort_by_column("quantity"))
 		
 		# Define column widths
 		self.products_table.column("name", width=300)
@@ -91,15 +93,55 @@ class Window:
 		# Display the products
 		self.display_products()
 
+	def sort_by_column(self, column):
+		"""Sort the table by the specified column"""
+		# Toggle sort direction if clicking on the same column
+		if self.sort_column == column:
+			self.sort_reverse = not self.sort_reverse
+		else:
+			self.sort_column = column
+			self.sort_reverse = False
+		
+		# Update column headings to show sort direction
+		self.update_column_headings()
+		
+		# Refresh the display with sorted data
+		self.display_products()
+	
+	def update_column_headings(self):
+		"""Update column headings to show sort indicators"""
+		# Reset all headings
+		self.products_table.heading("name", text="Product Name")
+		self.products_table.heading("price", text="Price ($)")
+		self.products_table.heading("quantity", text="Quantity")
+		
+		# Add sort indicator to the current sort column
+		if self.sort_column:
+			indicator = " ▲" if not self.sort_reverse else " ▼"
+			if self.sort_column == "name":
+				self.products_table.heading("name", text="Product Name" + indicator)
+			elif self.sort_column == "price":
+				self.products_table.heading("price", text="Price ($)" + indicator)
+			elif self.sort_column == "quantity":
+				self.products_table.heading("quantity", text="Quantity" + indicator)
+
 	def display_products(self):
 		"""displays all products in the table"""
 		# Clear existing items
 		for item in self.products_table.get_children():
 			self.products_table.delete(item)
 		
-		# Get data from database
+		# Get data from database with sorting
 		cursor = self.conn.cursor()
-		cursor.execute("SELECT * FROM products")
+		
+		# Build the SQL query with sorting
+		if self.sort_column:
+			sort_order = "DESC" if self.sort_reverse else "ASC"
+			query = f"SELECT * FROM products ORDER BY {self.sort_column} {sort_order}"
+		else:
+			query = "SELECT * FROM products"
+		
+		cursor.execute(query)
 		rows = cursor.fetchall()
 		
 		# Insert new data
