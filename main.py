@@ -6,8 +6,6 @@ import tkinter as tk
 
 def connect_to_db(db_name):
     """Connect to the SQLite database."""
-    if not os.path.exists(db_name):
-        raise FileNotFoundError(f"Database {db_name} does not exist.")
     conn = sqlite3.connect(db_name)
     return conn
 
