@@ -1,7 +1,8 @@
 import pandas as pd
 import sqlite3
 import os
-from classes import Product
+from classes import Product, Window
+import tkinter as tk
 
 def connect_to_db(db_name):
     """Connect to the SQLite database."""
@@ -27,27 +28,6 @@ def display_products(cursor):
     rows = cursor.fetchall()
     for row in rows:
         print(row)
-    
-def main_loop(conn, cursor):
-    while True:
-        print("\nOptions:")
-        print("1. Update product quantity")
-        print("2. Exit")
-        choice = input("Enter your choice: ")
-        
-        if choice == '1':
-            product_name = input("Enter product name: ")
-            quantity = int(input("Enter quantity to add (can be negative): "))
-            try:
-                update_product_quantity(cursor, product_name, quantity)
-                conn.commit()
-                display_products(cursor)
-            except ValueError as e:
-                print(e)
-        elif choice == '2':
-            break
-        else:
-            print("Invalid choice. Please try again.")
 
 def main():
     # Create a new SQLite database (or connect to an existing one)
@@ -72,22 +52,49 @@ def main():
     # Commit the changes
     conn.commit()
     
-    samples: list[Product] = [
-        Product(name='aspirin', price=10.99, quantity=100),
-        Product(name='ibuprofen', price=20.49, quantity=200),
-        Product(name='paracetamol', price=15.75, quantity=150),
-        Product(name='amoxicillin', price=30.00, quantity=80)
+    pharmacy_inventory: list[Product] = [
+        # Original list (15 items)
+        Product(name='Lisinopril', price=25.99, quantity=120),
+        Product(name='Atorvastatin', price=45.50, quantity=90),
+        Product(name='Metformin', price=12.75, quantity=200),
+        Product(name='Albuterol Inhaler', price=62.30, quantity=50),
+        Product(name='Omeprazole', price=18.95, quantity=150),
+        Product(name='Levothyroxine', price=22.40, quantity=110),
+        Product(name='Simvastatin', price=28.60, quantity=85),
+        Product(name='Losartan', price=32.25, quantity=95),
+        Product(name='Acetaminophen', price=8.99, quantity=300),
+        Product(name='Diphenhydramine', price=14.50, quantity=180),
+        Product(name='Loratadine', price=16.75, quantity=160),
+        Product(name='Hydrochlorothiazide', price=19.99, quantity=130),
+        Product(name='Vitamin D3', price=11.25, quantity=240),
+        Product(name='Melatonin', price=13.50, quantity=190),
+        Product(name='Cetirizine', price=15.20, quantity=170),
+
+        # New additions (15 more items)
+        Product(name='Amoxicillin', price=27.80, quantity=75),
+        Product(name='Azithromycin', price=38.90, quantity=60),
+        Product(name='Ciprofloxacin', price=34.25, quantity=55),
+        Product(name='Doxycycline', price=29.99, quantity=70),
+        Product(name='Fluoxetine', price=21.50, quantity=100),
+        Product(name='Sertraline', price=24.75, quantity=95),
+        Product(name='Pantoprazole', price=19.45, quantity=120),
+        Product(name='Montelukast', price=32.60, quantity=80),
+        Product(name='Prednisone', price=15.80, quantity=110),
+        Product(name='Tramadol', price=42.30, quantity=40),
+        Product(name='Naproxen', price=10.99, quantity=200),
+        Product(name='Ibuprofen', price=9.75, quantity=250),
+        Product(name='Aspirin', price=7.50, quantity=300),
+        Product(name='Calcium Carbonate', price=12.40, quantity=180),
+        Product(name='Magnesium Supplement', price=14.90, quantity=150),
+        Product(name='Multivitamin', price=16.25, quantity=170)
     ]
 
-    insert_products(cursor, samples)
+    insert_products(cursor, pharmacy_inventory)
 
     # Commit the changes
     conn.commit()
-    
-    # read data from db
-    display_products(cursor)
 
-    main_loop(conn, cursor)
+    root = Window("Pharmacy Inventory", conn)
 
     conn.close()
 
