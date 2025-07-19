@@ -13,6 +13,35 @@ A comprehensive pharmacy inventory management system built with Python and Tkint
 - **Pre-loaded Data**: Comes with 31 common pharmaceutical products
 - **Visual Feedback**: Refresh button with icon and intuitive dialog boxes
 
+## 🏗️ Architecture
+
+The application follows a modular architecture with clear separation of concerns:
+
+### **Database Layer (`database/`)**
+- **DatabaseManager**: Centralized database operations with connection management
+- **Transaction Safety**: Automatic commit/rollback handling
+- **Query Abstraction**: Clean API for common database operations
+
+### **GUI Layer (`gui/`)**  
+- **MainWindow**: Primary application interface with table management
+- **Dialog System**: Modular dialogs for add/modify operations
+- **Component Separation**: UI logic separated from business logic
+
+### **Data Layer (`data/`)**
+- **Sample Data**: Pre-defined pharmaceutical inventory
+- **Structured Format**: Consistent data format for easy extension
+
+### **Utilities (`utils/`)**
+- **Validation**: Comprehensive input validation with error handling
+- **GUI Helpers**: Reusable UI component creation functions
+- **Type Safety**: Strong typing for better code reliability
+
+### **Benefits of This Architecture**
+- **Maintainability**: Each module has a single responsibility
+- **Testability**: Components can be tested independently  
+- **Extensibility**: Easy to add new features without affecting existing code
+- **Code Reuse**: Common functionality extracted into utilities
+
 ## 📋 Requirements
 
 - **Python**: 3.10 or higher
@@ -98,8 +127,23 @@ Run `python main.py` to launch the pharmacy inventory system. The main window wi
 
 ```
 farmaDatabase/
-├── main.py                      # Application entry point and database setup
-├── classes.py                   # Product and Window class definitions
+├── main.py                      # Application entry point
+├── classes.py                   # Product data model class
+├── database/
+│   ├── __init__.py
+│   └── db_manager.py           # Database operations and management
+├── gui/
+│   ├── __init__.py
+│   ├── main_window.py          # Main application window
+│   └── dialogs.py              # Add/modify product dialogs
+├── data/
+│   ├── __init__.py
+│   └── sample_data.py          # Sample pharmaceutical products
+├── utils/
+│   ├── __init__.py
+│   ├── validation.py           # Input validation utilities
+│   ├── gui_helpers.py          # GUI utility functions
+│   └── config.py               # Application configuration settings
 ├── requirements.txt             # Python dependencies
 ├── Makefile                     # Build automation with conda
 ├── demo_gui_simulation.py       # Text-based feature demonstration
@@ -110,11 +154,17 @@ farmaDatabase/
 └── README.md                    # Project documentation
 ```
 
-### Key Files Description
+### Key Modules Description
 
-- **`main.py`**: Initializes the SQLite database, creates tables, populates with sample data, and launches the GUI
-- **`classes.py`**: Contains the `Product` class for data modeling and `Window` class for the GUI interface
-- **`demo_gui_simulation.py`**: Provides a text-based walkthrough of the quantity modification feature
+- **`main.py`**: Application entry point that initializes components and starts the GUI
+- **`classes.py`**: Simple Product data model class
+- **`database/db_manager.py`**: DatabaseManager class handling all SQLite operations
+- **`gui/main_window.py`**: MainWindow class for the primary application interface
+- **`gui/dialogs.py`**: Dialog classes for adding products and modifying quantities
+- **`data/sample_data.py`**: Pre-defined pharmaceutical products for database initialization
+- **`utils/validation.py`**: Input validation functions for form data
+- **`utils/gui_helpers.py`**: Utility functions for consistent GUI component creation
+- **`utils/config.py`**: Centralized application configuration and constants
 
 ## 🧪 Development & Testing
 
@@ -126,6 +176,9 @@ make test
 # Or run individual test files
 python test_sorting.py
 python test_quantity_modification.py
+
+# Run new integration tests for refactored code
+python test_refactored_integration.py
 ```
 
 ### Available Make Commands

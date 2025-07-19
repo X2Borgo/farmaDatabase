@@ -40,6 +40,10 @@ class DatabaseManager:
     def add_product(self, name: str, price: float, quantity: int) -> bool:
         """Add a single product to the database."""
         try:
+            # Check if product already exists first
+            if self.product_exists(name):
+                return False
+            
             cursor = self.conn.cursor()
             cursor.execute("INSERT INTO products (name, price, quantity) VALUES (?, ?, ?)", 
                           (name, price, quantity))

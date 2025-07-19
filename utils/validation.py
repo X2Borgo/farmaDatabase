@@ -1,6 +1,7 @@
 """Input validation utilities for the pharmacy inventory system."""
 
 from typing import Tuple, Optional
+from utils.config import MAX_NAME_LENGTH, MAX_PRICE, MAX_QUANTITY
 
 
 def validate_product_name(name: str) -> Tuple[bool, Optional[str]]:
@@ -13,8 +14,8 @@ def validate_product_name(name: str) -> Tuple[bool, Optional[str]]:
     if not name or not name.strip():
         return False, "Drug name is required"
     
-    if len(name.strip()) > 100:
-        return False, "Drug name cannot exceed 100 characters"
+    if len(name.strip()) > MAX_NAME_LENGTH:
+        return False, f"Drug name cannot exceed {MAX_NAME_LENGTH} characters"
     
     return True, None
 
@@ -33,7 +34,7 @@ def validate_price(price_str: str) -> Tuple[bool, Optional[str], Optional[float]
         price = float(price_str.strip())
         if price <= 0:
             return False, "Price must be greater than 0", None
-        if price > 999999.99:
+        if price > MAX_PRICE:
             return False, "Price is too large", None
         return True, None, price
     except ValueError:
@@ -54,7 +55,7 @@ def validate_quantity(quantity_str: str) -> Tuple[bool, Optional[str], Optional[
         quantity = int(quantity_str.strip())
         if quantity < 0:
             return False, "Quantity must be 0 or greater", None
-        if quantity > 999999:
+        if quantity > MAX_QUANTITY:
             return False, "Quantity is too large", None
         return True, None, quantity
     except ValueError:
