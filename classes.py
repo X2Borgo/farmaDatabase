@@ -51,6 +51,11 @@ class Window:
 			command=self.add_drug_dialog, font=("Arial", 16), bg="#4CAF50", fg="white")
 		self.add_drug_button.pack(side=tk.LEFT, padx=5)
 		
+		# Modify quantity button
+		self.modify_quantity_button = tk.Button(button_frame, text="Modify Quantity",
+			command=self.modify_quantity_dialog, font=("Arial", 16), bg="#2196F3", fg="white")
+		self.modify_quantity_button.pack(side=tk.LEFT, padx=5)
+		
 		# Frame to hold the table
 		self.table_frame = tk.Frame(self.root)
 		self.table_frame.pack(pady=20, fill=tk.BOTH, expand=True)
@@ -272,3 +277,134 @@ class Window:
 		
 		# Focus on name entry
 		name_entry.focus_set()
+
+	def modify_quantity_dialog(self):
+		"""Open dialog to modify the quantity of an existing drug"""
+		dialog = tk.Toplevel(self.root)
+		dialog.title("Modify Drug Quantity")
+		dialog.geometry("400x250")
+		dialog.resizable(False, False)
+		dialog.grab_set()  # Make dialog modal
+		
+		# Center the dialog on parent window
+		dialog.transient(self.root)
+		
+		# Title label
+		title_label = tk.Label(dialog, text="Modify Drug Quantity", font=("Arial", 16, "bold"))
+		title_label.pack(pady=20)
+		
+		# Input frame
+		input_frame = tk.Frame(dialog)
+		input_frame.pack(pady=10, padx=20, fill=tk.X)
+		
+		# Drug selection dropdown
+		tk.Label(input_frame, text="Select Drug:", font=("Arial", 12)).grid(row=0, column=0, sticky="w", pady=5)
+		
+		# Get list of drugs from database
+		cursor = self.conn.cursor()
+		cursor.execute("SELECT name FROM products ORDER BY name")
+		drugs = [row[0] for row in cursor.fetchall()]
+		
+		if not drugs:
+			# No drugs available
+			tk.Label(input_frame, text="No drugs found in inventory", font=("Arial", 12), fg="red").grid(row=0, column=1, pady=5, padx=10)
+			tk.Button(dialog, text="Close", command=dialog.destroy, font=("Arial", 12), bg="#f44336", fg="white").pack(pady=20)
+			return
+		
+		drug_var = tk.StringVar(value=drugs[0])
+		drug_dropdown = ttk.Combobox(input_frame, textvariable=drug_var, values=drugs, 
+			font=("Arial", 12), width=22, state="readonly")
+		drug_dropdown.grid(row=0, column=1, pady=5, padx=10)
+		
+		# Current quantity display
+		current_qty_label = tk.Label(input_frame, text="Current Quantity:", font=("Arial", 12))
+		current_qty_label.grid(row=1, column=0, sticky="w", pady=5)
+		current_qty_value = tk.Label(input_frame, text="", font=("Arial", 12), fg="blue")
+		current_qty_value.grid(row=1, column=1, sticky="w", pady=5, padx=10)
+		
+		# New quantity input
+		tk.Label(input_frame, text="New Quantity:", font=("Arial", 12)).grid(row=2, column=0, sticky="w", pady=5)
+		quantity_entry = tk.Entry(input_frame, font=("Arial", 12), width=25)
+		quantity_entry.grid(row=2, column=1, pady=5, padx=10)
+		
+		def update_current_quantity(*args):
+			"""Update the current quantity display when drug selection changes"""
+			selected_drug = drug_var.get()
+			if selected_drug:
+				cursor = self.conn.cursor()
+				cursor.execute("SELECT quantity FROM products WHERE name = ?", (selected_drug,))
+				result = cursor.fetchone()
+				if result:
+					current_qty_value.config(text=str(result[0]))
+					quantity_entry.delete(0, tk.END)
+					quantity_entry.insert(0, str(result[0]))
+		
+		# Bind the function to dropdown selection change
+		drug_var.trace('w', update_current_quantity)
+		update_current_quantity()  # Initial update
+		
+		# Error label
+		error_label = tk.Label(dialog, text="", font=("Arial", 10), fg="red")
+		error_label.pack(pady=5)
+		
+		# Button frame
+		button_frame = tk.Frame(dialog)
+		button_frame.pack(pady=20)
+		
+		def save_quantity():
+			"""Save the modified quantity to the database"""
+			try:
+				# Get input values
+				selected_drug = drug_var.get()
+				quantity_str = quantity_entry.get().strip()
+				
+				# Validate inputs
+				if not selected_drug:
+					error_label.config(text="Please select a drug")
+					return
+				if not quantity_str:
+					error_label.config(text="Quantity is required")
+					return
+				
+				# Convert and validate quantity
+				try:
+					new_quantity = int(quantity_str)
+					if new_quantity < 0:
+						error_label.config(text="Quantity must be 0 or greater")
+						return
+				except ValueError:
+					error_label.config(text="Quantity must be a valid integer")
+					return
+				
+				# Update quantity in database (set to new value, not add)
+				cursor = self.conn.cursor()
+				cursor.execute("UPDATE products SET quantity = ? WHERE name = ?", (new_quantity, selected_drug))
+				
+				if cursor.rowcount == 0:
+					error_label.config(text=f"Drug '{selected_drug}' not found")
+					return
+				
+				self.conn.commit()
+				
+				# Close dialog and refresh table
+				dialog.destroy()
+				self.display_products()
+				
+			except Exception as e:
+				error_label.config(text=f"Error: {str(e)}")
+		
+		def cancel():
+			"""Cancel and close the dialog"""
+			dialog.destroy()
+		
+		# Buttons
+		save_button = tk.Button(button_frame, text="Save", command=save_quantity, 
+			font=("Arial", 12), bg="#4CAF50", fg="white", width=10)
+		save_button.pack(side=tk.LEFT, padx=5)
+		
+		cancel_button = tk.Button(button_frame, text="Cancel", command=cancel, 
+			font=("Arial", 12), bg="#f44336", fg="white", width=10)
+		cancel_button.pack(side=tk.LEFT, padx=5)
+		
+		# Focus on quantity entry
+		quantity_entry.focus_set()
