@@ -53,6 +53,9 @@ class MainWindow:
         
         # Table frame and components
         self._create_table_frame(main_container)
+        
+        # Status bar
+        self._create_status_bar(main_container)
     
     def _create_header(self, parent):
         """Create the header section with title and subtitle."""
@@ -115,7 +118,7 @@ class MainWindow:
             )
             self.refresh_button.pack(side=tk.LEFT, padx=(0, SPACING['md']))
         
-        # Add drug button
+        # Add drug button with hover effects
         self.add_drug_button = tk.Button(
             button_frame, 
             text="+ Add Drug",
@@ -123,8 +126,9 @@ class MainWindow:
             **BUTTON_STYLES['success']
         )
         self.add_drug_button.pack(side=tk.LEFT, padx=(0, SPACING['md']))
+        self._add_button_hover_effects(self.add_drug_button, COLORS['success'], COLORS['success_hover'])
         
-        # Modify quantity button
+        # Modify quantity button with hover effects
         self.modify_quantity_button = tk.Button(
             button_frame, 
             text="✎ Modify Quantity",
@@ -132,6 +136,7 @@ class MainWindow:
             **BUTTON_STYLES['info']
         )
         self.modify_quantity_button.pack(side=tk.LEFT)
+        self._add_button_hover_effects(self.modify_quantity_button, COLORS['info'], COLORS['info_hover'])
     
     def _create_table_frame(self, parent):
         """Create the table and its container."""
@@ -173,6 +178,33 @@ class MainWindow:
         
         # Configure table selection
         self.products_table.configure(selectmode="browse")
+    
+    def _create_status_bar(self, parent):
+        """Create a status bar showing inventory statistics."""
+        status_frame = tk.Frame(parent, bg=COLORS['bg_secondary'], relief='solid', bd=1)
+        status_frame.pack(fill=tk.X, pady=(SPACING['md'], 0))
+        
+        # Status text
+        self.status_label = tk.Label(
+            status_frame,
+            text="Ready",
+            font=FONTS['body_medium'],
+            fg=COLORS['text_secondary'],
+            bg=COLORS['bg_secondary'],
+            anchor='w'
+        )
+        self.status_label.pack(side=tk.LEFT, padx=SPACING['md'], pady=SPACING['xs'])
+        
+        # Inventory stats
+        self.stats_label = tk.Label(
+            status_frame,
+            text="",
+            font=FONTS['body_medium'],
+            fg=COLORS['text_secondary'],
+            bg=COLORS['bg_secondary'],
+            anchor='e'
+        )
+        self.stats_label.pack(side=tk.RIGHT, padx=SPACING['md'], pady=SPACING['xs'])
     
     def _configure_columns(self):
         """Configure table column properties."""
@@ -263,6 +295,11 @@ class MainWindow:
     
     def refresh_display(self):
         """Refresh the table display with current database data."""
+        # Update status to show loading
+        if hasattr(self, 'status_label'):
+            self.status_label.config(text="Refreshing inventory...")
+            self.root.update_idletasks()
+        
         # Clear existing items
         for item in self.products_table.get_children():
             self.products_table.delete(item)
@@ -270,9 +307,48 @@ class MainWindow:
         # Get sorted data from database
         rows = self.db_manager.get_all_products(self.sort_column, self.sort_reverse)
         
-        # Insert new data
-        for row in rows:
-            self.products_table.insert("", tk.END, values=(row[0], f"${row[1]:.2f}", row[2]))
+        # Insert new data with alternating row colors for better readability
+        for i, row in enumerate(rows):
+            # Add alternating row colors for better visual separation
+            tags = ('evenrow',) if i % 2 == 0 else ('oddrow',)
+            self.products_table.insert("", tk.END, values=(row[0], f"${row[1]:.2f}", row[2]), tags=tags)
+        
+        # Configure alternating row colors
+        self.products_table.tag_configure('evenrow', background=COLORS['bg_table'])
+        self.products_table.tag_configure('oddrow', background=COLORS['bg_table_alt'])
+        
+        # Update status bar with inventory statistics
+        self._update_status_bar(len(rows))
+    
+    def _update_status_bar(self, total_products: int):
+        """Update the status bar with current inventory statistics."""
+        try:
+            # Get total quantity across all products
+            all_products = self.db_manager.get_all_products()
+            total_quantity = sum(product[2] for product in all_products)  # Sum quantity column
+            
+            # Calculate total value
+            total_value = sum(product[1] * product[2] for product in all_products)  # price * quantity
+            
+            # Update labels
+            self.status_label.config(text="Inventory loaded successfully")
+            self.stats_label.config(
+                text=f"Products: {total_products} | Total Items: {total_quantity} | Total Value: ${total_value:,.2f}"
+            )
+        except Exception as e:
+            self.status_label.config(text="Ready")
+            self.stats_label.config(text="Statistics unavailable")
+    
+    def _add_button_hover_effects(self, button, normal_color, hover_color):
+        """Add hover effects to a button."""
+        def on_enter(e):
+            button.config(bg=hover_color)
+            
+        def on_leave(e):
+            button.config(bg=normal_color)
+        
+        button.bind("<Enter>", on_enter)
+        button.bind("<Leave>", on_leave)
     
     def _show_add_dialog(self):
         """Show the add product dialog."""
