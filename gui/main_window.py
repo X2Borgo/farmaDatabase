@@ -5,6 +5,7 @@ from tkinter import ttk
 from typing import Optional
 from database.db_manager import DatabaseManager
 from gui.dialogs import AddProductDialog, ModifyQuantityDialog
+from gui.styles import COLORS, FONTS, SPACING, BUTTON_STYLES, TABLE_STYLE_CONFIG
 
 
 class MainWindow:
@@ -24,55 +25,137 @@ class MainWindow:
     def _setup_window(self, title: str):
         """Configure the main window properties."""
         self.root.title(title)
-        self.root.geometry("1600x1000+1500+800")
-        self.root.resizable(False, False)
+        self.root.geometry("1400x900")  # More standard size
+        self.root.minsize(1200, 700)    # Allow resizing but set minimum
+        self.root.resizable(True, True)  # Allow resizing for better UX
+        self.root.configure(bg=COLORS['bg_primary'])  # Set modern background
         self.root.bind("<Escape>", lambda e: self.root.destroy())
+        
+        # Center the window on screen
+        self.root.update_idletasks()
+        width = self.root.winfo_width()
+        height = self.root.winfo_height()
+        x = (self.root.winfo_screenwidth() // 2) - (width // 2)
+        y = (self.root.winfo_screenheight() // 2) - (height // 2)
+        self.root.geometry(f'{width}x{height}+{x}+{y}')
     
     def _create_widgets(self):
         """Create and layout all window widgets."""
-        # Welcome label
-        label = tk.Label(self.root, text="Welcome to the Pharmacy Inventory", font=("Arial", 20))
-        label.pack(pady=20)
+        # Create main container with padding
+        main_container = tk.Frame(self.root, bg=COLORS['bg_primary'])
+        main_container.pack(fill=tk.BOTH, expand=True, padx=SPACING['xl'], pady=SPACING['lg'])
+        
+        # Header section
+        self._create_header(main_container)
         
         # Button frame
-        self._create_button_frame()
+        self._create_button_frame(main_container)
         
         # Table frame and components
-        self._create_table_frame()
+        self._create_table_frame(main_container)
     
-    def _create_button_frame(self):
-        """Create the frame containing action buttons."""
-        button_frame = tk.Frame(self.root)
-        button_frame.pack(pady=10)
+    def _create_header(self, parent):
+        """Create the header section with title and subtitle."""
+        header_frame = tk.Frame(parent, bg=COLORS['bg_primary'])
+        header_frame.pack(fill=tk.X, pady=(0, SPACING['xl']))
         
-        # Refresh button with icon
-        self.refresh = tk.PhotoImage(file="./icons/refresh-button.png")
-        self.refresh_image = self.refresh.subsample(10, 10)
-        self.refresh_button = tk.Button(button_frame, text="", image=self.refresh_image,
-                                       command=self.refresh_display, font=("Arial", 20))
-        self.refresh_button.pack(side=tk.LEFT, padx=5)
+        # Main title
+        title_label = tk.Label(
+            header_frame, 
+            text="Pharmacy Inventory Management", 
+            font=FONTS['heading_large'],
+            fg=COLORS['primary'],
+            bg=COLORS['bg_primary']
+        )
+        title_label.pack()
+        
+        # Subtitle
+        subtitle_label = tk.Label(
+            header_frame, 
+            text="Manage your pharmaceutical inventory efficiently", 
+            font=FONTS['body_large'],
+            fg=COLORS['text_secondary'],
+            bg=COLORS['bg_primary']
+        )
+        subtitle_label.pack(pady=(SPACING['xs'], 0))
+    
+    def _create_button_frame(self, parent):
+        """Create the frame containing action buttons."""
+        button_container = tk.Frame(parent, bg=COLORS['bg_primary'])
+        button_container.pack(fill=tk.X, pady=(0, SPACING['lg']))
+        
+        # Center the buttons
+        button_frame = tk.Frame(button_container, bg=COLORS['bg_primary'])
+        button_frame.pack()
+        
+        # Refresh button with icon (simplified for now)
+        try:
+            self.refresh = tk.PhotoImage(file="./icons/refresh-button.png")
+            self.refresh_image = self.refresh.subsample(15, 15)  # Make icon smaller
+            self.refresh_button = tk.Button(
+                button_frame, 
+                image=self.refresh_image,
+                command=self.refresh_display,
+                bg=COLORS['primary'],
+                activebackground=COLORS['primary_dark'],
+                relief='flat',
+                borderwidth=0,
+                cursor='hand2',
+                padx=SPACING['md'],
+                pady=SPACING['sm']
+            )
+            self.refresh_button.pack(side=tk.LEFT, padx=(0, SPACING['md']))
+        except:
+            # Fallback if icon doesn't exist
+            self.refresh_button = tk.Button(
+                button_frame, 
+                text="⟳",  # Unicode refresh symbol
+                command=self.refresh_display,
+                **BUTTON_STYLES['primary']
+            )
+            self.refresh_button.pack(side=tk.LEFT, padx=(0, SPACING['md']))
         
         # Add drug button
-        self.add_drug_button = tk.Button(button_frame, text="Add Drug",
-                                        command=self._show_add_dialog, font=("Arial", 16), 
-                                        bg="#4CAF50", fg="white")
-        self.add_drug_button.pack(side=tk.LEFT, padx=5)
+        self.add_drug_button = tk.Button(
+            button_frame, 
+            text="+ Add Drug",
+            command=self._show_add_dialog, 
+            **BUTTON_STYLES['success']
+        )
+        self.add_drug_button.pack(side=tk.LEFT, padx=(0, SPACING['md']))
         
         # Modify quantity button
-        self.modify_quantity_button = tk.Button(button_frame, text="Modify Quantity",
-                                               command=self._show_modify_dialog, font=("Arial", 16), 
-                                               bg="#2196F3", fg="white")
-        self.modify_quantity_button.pack(side=tk.LEFT, padx=5)
+        self.modify_quantity_button = tk.Button(
+            button_frame, 
+            text="✎ Modify Quantity",
+            command=self._show_modify_dialog, 
+            **BUTTON_STYLES['info']
+        )
+        self.modify_quantity_button.pack(side=tk.LEFT)
     
-    def _create_table_frame(self):
+    def _create_table_frame(self, parent):
         """Create the table and its container."""
-        # Frame to hold the table
-        self.table_frame = tk.Frame(self.root)
-        self.table_frame.pack(pady=20, fill=tk.BOTH, expand=True)
+        # Frame to hold the table with modern styling
+        self.table_frame = tk.Frame(parent, bg=COLORS['bg_primary'])
+        self.table_frame.pack(fill=tk.BOTH, expand=True)
         
-        # Create Treeview widget
+        # Table title
+        table_title = tk.Label(
+            self.table_frame, 
+            text="Current Inventory", 
+            font=FONTS['heading_small'],
+            fg=COLORS['text_primary'],
+            bg=COLORS['bg_primary']
+        )
+        table_title.pack(anchor='w', pady=(0, SPACING['sm']))
+        
+        # Create container for table and scrollbars
+        table_container = tk.Frame(self.table_frame, bg=COLORS['bg_primary'])
+        table_container.pack(fill=tk.BOTH, expand=True)
+        
+        # Create Treeview widget with modern styling
         columns = ("name", "price", "quantity")
-        self.products_table = ttk.Treeview(self.table_frame, columns=columns, show="headings")
+        self.products_table = ttk.Treeview(table_container, columns=columns, show="headings")
         
         # Define column headings with sorting functionality
         self.products_table.heading("name", text="Product Name", 
@@ -86,23 +169,23 @@ class MainWindow:
         self._configure_columns()
         
         # Add scrollbars
-        self._add_scrollbars()
+        self._add_scrollbars(table_container)
         
         # Configure table selection
         self.products_table.configure(selectmode="browse")
     
     def _configure_columns(self):
         """Configure table column properties."""
-        # Define column widths
-        self.products_table.column("name", width=300, anchor="center")
+        # Define column widths and alignment
+        self.products_table.column("name", width=400, anchor="w")  # Left align for names
         self.products_table.column("price", width=150, anchor="center")
         self.products_table.column("quantity", width=150, anchor="center")
     
-    def _add_scrollbars(self):
+    def _add_scrollbars(self, container):
         """Add scrollbars to the table."""
-        y_scrollbar = ttk.Scrollbar(self.table_frame, orient=tk.VERTICAL, 
+        y_scrollbar = ttk.Scrollbar(container, orient=tk.VERTICAL, 
                                    command=self.products_table.yview)
-        x_scrollbar = ttk.Scrollbar(self.table_frame, orient=tk.HORIZONTAL, 
+        x_scrollbar = ttk.Scrollbar(container, orient=tk.HORIZONTAL, 
                                    command=self.products_table.xview)
         
         self.products_table.configure(yscrollcommand=y_scrollbar.set, 
@@ -114,19 +197,36 @@ class MainWindow:
         x_scrollbar.grid(row=1, column=0, sticky="ew")
         
         # Configure the grid weights
-        self.table_frame.rowconfigure(0, weight=1)
-        self.table_frame.columnconfigure(0, weight=1)
+        container.rowconfigure(0, weight=1)
+        container.columnconfigure(0, weight=1)
     
     def _setup_styles(self):
-        """Configure the visual styles for the table."""
+        """Configure the visual styles for the table and other widgets."""
         style = ttk.Style()
-        style.configure("Treeview", rowheight=40, font=("Arial", 16), 
-                       background="#f0f0f0", foreground="#333333")
-        style.configure("Treeview.Heading", font=("Arial", 20, "bold"))
-        style.configure("Vertical.TScrollbar", troughcolor="#f0f0f0", 
-                       background="#d9d9d9", bordercolor="#bfbfbf")
-        style.configure("Horizontal.TScrollbar", troughcolor="#f0f0f0", 
-                       background="#d9d9d9", bordercolor="#bfbfbf")
+        
+        # Apply modern table styling
+        for style_name, config in TABLE_STYLE_CONFIG.items():
+            if 'configure' in config:
+                style.configure(style_name, **config['configure'])
+            if 'map' in config:
+                style.map(style_name, **config['map'])
+        
+        # Configure scrollbar styles
+        style.configure("Vertical.TScrollbar", 
+                       troughcolor=COLORS['bg_secondary'],
+                       background=COLORS['border'],
+                       bordercolor=COLORS['border'],
+                       arrowcolor=COLORS['text_secondary'],
+                       darkcolor=COLORS['border'],
+                       lightcolor=COLORS['bg_primary'])
+        
+        style.configure("Horizontal.TScrollbar", 
+                       troughcolor=COLORS['bg_secondary'],
+                       background=COLORS['border'],
+                       bordercolor=COLORS['border'],
+                       arrowcolor=COLORS['text_secondary'],
+                       darkcolor=COLORS['border'],
+                       lightcolor=COLORS['bg_primary'])
     
     def _sort_by_column(self, column: str):
         """Sort the table by the specified column."""
