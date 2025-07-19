@@ -160,7 +160,7 @@ class Window:
 		
 		# Insert new data
 		for row in rows:
-			self.products_table.insert("", tk.END, values=(row[1], f"${row[2]:.2f}", row[3]))
+			self.products_table.insert("", tk.END, values=(row[0], f"${row[1]:.2f}", row[2]))
 
 	def add_drug_dialog(self):
 		"""Open dialog to add a new drug to the inventory"""
@@ -282,7 +282,7 @@ class Window:
 		"""Open dialog to modify the quantity of an existing drug"""
 		dialog = tk.Toplevel(self.root)
 		dialog.title("Modify Drug Quantity")
-		dialog.geometry("400x250")
+		dialog.geometry("400x300")
 		dialog.resizable(False, False)
 		dialog.grab_set()  # Make dialog modal
 		
