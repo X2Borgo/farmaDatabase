@@ -127,31 +127,31 @@ Run `python main.py` to launch the pharmacy inventory system. The main window wi
 
 ```
 farmaDatabase/
-├── main.py                      # Application entry point
-├── classes.py                   # Product data model class
+├── main.py					  # Application entry point
+├── classes.py				   # Product data model class
 ├── database/
 │   ├── __init__.py
-│   └── db_manager.py           # Database operations and management
+│   └── db_manager.py		   # Database operations and management
 ├── gui/
 │   ├── __init__.py
-│   ├── main_window.py          # Main application window
-│   └── dialogs.py              # Add/modify product dialogs
+│   ├── main_window.py		  # Main application window
+│   └── dialogs.py			  # Add/modify product dialogs
 ├── data/
 │   ├── __init__.py
-│   └── sample_data.py          # Sample pharmaceutical products
+│   └── sample_data.py		  # Sample pharmaceutical products
 ├── utils/
 │   ├── __init__.py
-│   ├── validation.py           # Input validation utilities
-│   ├── gui_helpers.py          # GUI utility functions
-│   └── config.py               # Application configuration settings
-├── requirements.txt             # Python dependencies
-├── Makefile                     # Build automation with conda
-├── demo_gui_simulation.py       # Text-based feature demonstration
+│   ├── validation.py		   # Input validation utilities
+│   ├── gui_helpers.py		  # GUI utility functions
+│   └── config.py			   # Application configuration settings
+├── requirements.txt			 # Python dependencies
+├── Makefile					 # Build automation with conda
+├── demo_gui_simulation.py	   # Text-based feature demonstration
 ├── icons/
-│   └── refresh-button.png       # GUI icon assets
-├── test_*.py                    # Test files for various features
-├── .gitignore                   # Git ignore rules
-└── README.md                    # Project documentation
+│   └── refresh-button.png	   # GUI icon assets
+├── test_*.py					# Test files for various features
+├── .gitignore				   # Git ignore rules
+└── README.md					# Project documentation
 ```
 
 ### Key Modules Description
@@ -183,11 +183,11 @@ python test_refactored_integration.py
 
 ### Available Make Commands
 ```bash
-make run     # Create environment, install deps, and run
-make req     # Install requirements only
-make test    # Run tests
+make run	 # Create environment, install deps, and run
+make req	 # Install requirements only
+make test	# Run tests
 make clean   # Remove virtual environment
-make val     # Run with valgrind (for memory debugging)
+make val	 # Run with valgrind (for memory debugging)
 ```
 
 ### GUI Simulation Demo
