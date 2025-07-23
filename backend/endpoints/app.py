@@ -1,0 +1,54 @@
+from flask import Flask, jsonify, request
+from flask_cors import CORS
+import sqlite3
+import os
+
+app = Flask(__name__)
+CORS(app)  # Enable CORS for frontend-backend communication
+
+# Database path
+DB_PATH = os.path.join(os.path.dirname(__file__), '../databases/inventory.db')
+
+def get_db_connection():
+    """Get database connection"""
+    conn = sqlite3.connect(DB_PATH)
+    conn.row_factory = sqlite3.Row  # Enable column access by name
+    return conn
+
+@app.route('/api/health', methods=['GET'])
+def health_check():
+    """Health check endpoint"""
+    return jsonify({'status': 'healthy', 'message': 'API is running'})
+
+@app.route('/api/inventory', methods=['GET'])
+def get_inventory():
+    """Get all inventory items"""
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        cursor.execute('SELECT * FROM inventory')
+        items = [dict(row) for row in cursor.fetchall()]
+        conn.close()
+        return jsonify({'success': True, 'data': items})
+    except Exception as e:
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+@app.route('/api/inventory', methods=['POST'])
+def add_inventory_item():
+    """Add new inventory item"""
+    try:
+        data = request.get_json()
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        cursor.execute(
+            'INSERT INTO inventory (name, quantity, price) VALUES (?, ?, ?)',
+            (data.get('name'), data.get('quantity'), data.get('price'))
+        )
+        conn.commit()
+        conn.close()
+        return jsonify({'success': True, 'message': 'Item added successfully'})
+    except Exception as e:
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+if __name__ == '__main__':
+    app.run(debug=True, host='0.0.0.0', port=5000)
