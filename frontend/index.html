@@ -4,8 +4,31 @@
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<title>My Little Farma</title>
+	<link rel="stylesheet" href="/frontend/styles/main.css">
 </head>
 <body>
+	<div id="app">
+		<nav id="navbar">
+			<div class="nav-brand">
+				<h2>My Little Farma</h2>
+			</div>
+			<div class="nav-links">
+				<a href="#home" onclick="navigateTo('home')">Home</a>
+				<a href="#login" onclick="navigateTo('login')">Login</a>
+				<a href="#signup" onclick="navigateTo('signup')">Sign Up</a>
+			</div>
+		</nav>
+		
+		<main id="content">
+			<!-- Content will be loaded here dynamically -->
+		</main>
+	</div>
 	
+	<script src="/frontend/js/router.js"></script>
+	<script src="/frontend/js/api.js"></script>
+	<script src="/frontend/home/home.js"></script>
+	<script src="/frontend/login/login.js"></script>
+	<script src="/frontend/signup/signup.js"></script>
+	<script src="/frontend/js/app.js"></script>
 </body>
 </html>

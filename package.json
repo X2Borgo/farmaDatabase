@@ -4,14 +4,12 @@
   "description": "A simple farmacy application",
   "author": "Borgo",
   "dependencies": {
-    "vite": "^7.0.5"
+    "vite": "^5.0.0"
   },
-  "devDependencies": {
-    "@vitejs/plugin-vue": "^1.9.3"
-  },
+  "devDependencies": {},
   "scripts": {
-    "start": "vite",
+    "dev": "vite",
     "build": "vite build",
-    "serve": "vite preview"
+    "preview": "vite preview"
   }
 }
