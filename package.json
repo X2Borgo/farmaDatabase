@@ -1,0 +1,17 @@
+{
+  "name": "myLittleFarmacy",
+  "version": "0.0.1",
+  "description": "A simple farmacy application",
+  "author": "Borgo",
+  "dependencies": {
+    "vite": "^7.0.5"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-vue": "^1.9.3"
+  },
+  "scripts": {
+    "start": "vite",
+    "build": "vite build",
+    "serve": "vite preview"
+  }
+}
