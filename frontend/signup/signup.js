@@ -53,7 +53,11 @@ async function handleSignup(event) {
     
     // For now, just simulate signup (since we haven't implemented auth endpoints yet)
     if (userData.username && userData.email && userData.password) {
-        alert('Signup functionality will be implemented with authentication endpoints');
+        const response = await InventoryAPI.signup(userData);
+        if (response.error) {
+            alert(`Signup failed: ${response.error}`);
+            return;
+        }
         navigateTo('login');
     } else {
         alert('Please fill in all fields');

@@ -37,7 +37,12 @@ async function handleLogin(event) {
     
     // For now, just simulate login (since we haven't implemented auth endpoints yet)
     if (credentials.username && credentials.password) {
-        alert('Login functionality will be implemented with authentication endpoints');
+        const response = await InventoryAPI.login(credentials.username, credentials.password);
+        if (response.error) {
+            alert(`Login failed: ${response.error}`);
+            return;
+        }
+        localStorage.setItem('token', JSON.stringify({username: credentials.username}));
         navigateTo('home');
     } else {
         alert('Please fill in all fields');

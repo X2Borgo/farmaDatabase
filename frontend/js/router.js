@@ -12,7 +12,7 @@ class Router {
     navigateTo(path) {
         if (this.routes[path]) {
             this.currentRoute = path;
-            history.pushState(null, null, `#${path}`);
+            history.pushState(null, null, `${path}`);
             this.routes[path]();
         } else {
             console.error(`Route ${path} not found`);
@@ -26,8 +26,10 @@ class Router {
             this.navigateTo(path);
         });
 
+
+
         // Navigate to initial route
-        const initialPath = location.hash.slice(1) || 'home';
+        const initialPath = location.hash.slice(1) || 'login';
         this.navigateTo(initialPath);
     }
 }
@@ -37,5 +39,11 @@ const router = new Router();
 
 // Navigation function for global use
 function navigateTo(path) {
+    // check if user is logged in
+    if (!localStorage.getItem('token')) {
+        router.navigateTo('login');
+        return;
+    }
+
     router.navigateTo(path);
 }

@@ -50,5 +50,37 @@ def add_inventory_item():
     except Exception as e:
         return jsonify({'success': False, 'error': str(e)}), 500
 
+@app.route('/api/login', methods=['POST'])
+def login():
+    username = request.json.get('username')
+    password = request.json.get('password')
+
+    conn = get_db_connection()
+    user = conn.execute('SELECT * FROM users WHERE username = ? AND password_hash = ?',
+                        (username, password)).fetchone()
+    conn.close()
+
+    if user:
+        return jsonify({'message': 'Login successful', 'token': 'fake-jwt-token'}), 200
+    return jsonify({'message': 'Invalid credentials'}), 401
+
+@app.route('/api/signup', methods=['POST'])
+def signup():
+	username = request.json.get('username')
+	email = request.json.get('email')
+	password = request.json.get('password')
+
+	print(f"Creating user: {username}, {email}, {password}")
+
+	conn = get_db_connection()
+	try:
+		conn.execute('INSERT INTO users (username, email, password_hash) VALUES (?, ?, ?)', (username, email, password))
+		conn.commit()
+		return jsonify({'message': 'User created successfully'}), 201
+	except sqlite3.IntegrityError:
+		return jsonify({'message': 'Username already exists'}), 409
+	finally:
+		conn.close()
+
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=5000)

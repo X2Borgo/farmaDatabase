@@ -3,8 +3,8 @@ import { defineConfig } from 'vite';
 export default defineConfig({
   root: 'frontend',
   server: {
-    port: 3000,
-    open: true
+    port: 4269,
+    open: false,
   },
   build: {
     outDir: '../dist',

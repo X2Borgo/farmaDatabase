@@ -57,6 +57,22 @@ class API {
 
 // Specific API calls
 const InventoryAPI = {
+    async login(username, password) {
+        try {
+            return await API.post('/login', { username: username, password: password });
+        } catch (error) {
+            return { error: error.message || 'Login failed' };
+        }
+    },
+
+    async signup(userData) {
+        try {
+            return await API.post('/signup', { username: userData.username, email: userData.email, password: userData.password });
+        } catch (error) {
+            return { error: error.message || 'Signup failed' };
+        }
+    },
+
     async getAll() {
         return API.get('/inventory');
     },
