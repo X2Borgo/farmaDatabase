@@ -4,19 +4,51 @@ function renderHomePage() {
     
     // Get user data from localStorage
     let userInfo = '';
+    let roleSpecificActions = '';
     const userToken = localStorage.getItem('token');
     
     if (userToken) {
         try {
             const userData = JSON.parse(userToken);
+            const role = userData.role || 'N/A';
+            
             userInfo = `
                 <div class="card mb-1">
                     <div class="user-info">
                         <h3>Welcome, ${userData.username}</h3>
-                        <p>Role: ${userData.role || 'N/A'}</p>
+                        <p>Role: ${role}</p>
                     </div>
                 </div>
             `;
+            
+            // Role-specific action buttons
+            switch(role) {
+                case 'customer':
+                    roleSpecificActions = `
+                        <button class="btn" onclick="showInventory()">View Medications</button>
+                        <button class="btn btn-primary" onclick="navigateTo('order')">Place New Order</button>
+                        <button class="btn" onclick="navigateTo('my-orders')">View My Orders</button>
+                    `;
+                    break;
+                case 'pharmacist':
+                    roleSpecificActions = `
+                        <button class="btn" onclick="showInventory()">View Inventory</button>
+                        <button class="btn btn-success" onclick="showAddItemForm()">Add New Item</button>
+                        <button class="btn btn-primary" onclick="navigateTo('pending-orders')">Manage Orders</button>
+                    `;
+                    break;
+                case 'practitioner':
+                    roleSpecificActions = `
+                        <button class="btn" onclick="showInventory()">View Medications</button>
+                        <button class="btn btn-primary" onclick="navigateTo('create-prescription')">Create Prescription</button>
+                        <button class="btn" onclick="navigateTo('prescriptions')">View Prescriptions</button>
+                    `;
+                    break;
+                default:
+                    roleSpecificActions = `
+                        <button class="btn" onclick="showInventory()">View Inventory</button>
+                    `;
+            }
         } catch (e) {
             console.error('Error parsing user data', e);
         }
@@ -30,8 +62,7 @@ function renderHomePage() {
             
             <div class="mt-1">
                 <h3>Quick Actions</h3>
-                <button class="btn" onclick="showInventory()">View Inventory</button>
-                <button class="btn btn-success" onclick="showAddItemForm()">Add New Item</button>
+                ${roleSpecificActions}
             </div>
         </div>
         
@@ -40,6 +71,7 @@ function renderHomePage() {
             <div id="inventory-list">Loading...</div>
         </div>
         
+        <!-- Only show for pharmacists -->
         <div id="add-item-section" class="card" style="display: none;">
             <h3>Add New Item</h3>
             <form id="add-item-form">
@@ -61,28 +93,38 @@ function renderHomePage() {
         </div>
     `;
     
-    // Set up form handler
+    // Set up form handler for pharmacists only
     const form = document.getElementById('add-item-form');
-    form.addEventListener('submit', handleAddItem);
+    if (form) {
+        form.addEventListener('submit', handleAddItem);
+    }
+    
+    // Hide the add form by default for non-pharmacists
+    if (userToken) {
+        const userData = JSON.parse(userToken);
+        if (userData.role !== 'pharmacist') {
+            const addItemSection = document.getElementById('add-item-section');
+            if (addItemSection) {
+                addItemSection.style.display = 'none';
+            }
+        }
+    }
 }
 
-async function showInventory() {
+function showInventory() {
     const section = document.getElementById('inventory-section');
     const listContainer = document.getElementById('inventory-list');
-    
     section.style.display = 'block';
     listContainer.innerHTML = 'Loading...';
-    
-    try {
-        const response = await InventoryAPI.getAll();
+    InventoryAPI.getAll().then(response => {
         if (response.success) {
             renderInventoryList(response.data);
         } else {
             listContainer.innerHTML = `<div class="error">Failed to load inventory</div>`;
         }
-    } catch (error) {
+    }).catch(error => {
         listContainer.innerHTML = `<div class="error">Error: ${error.message}</div>`;
-    }
+    });
 }
 
 function renderInventoryList(items) {
@@ -119,8 +161,17 @@ function renderInventoryList(items) {
     listContainer.innerHTML = table;
 }
 
+// Only allow pharmacists to show the add item form
 function showAddItemForm() {
-    document.getElementById('add-item-section').style.display = 'block';
+    const userToken = localStorage.getItem('token');
+    if (userToken) {
+        const userData = JSON.parse(userToken);
+        if (userData.role === 'pharmacist') {
+            document.getElementById('add-item-section').style.display = 'block';
+        } else {
+            alert('Only pharmacists can add inventory items');
+        }
+    }
 }
 
 function hideAddItemForm() {

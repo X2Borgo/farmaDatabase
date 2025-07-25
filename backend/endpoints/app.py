@@ -92,5 +92,50 @@ def signup():
     finally:
         conn.close()
 
+# For customers to place orders
+@app.route('/api/orders', methods=['POST'])
+def create_order():
+    # Create a new order in the database
+    # Return order ID and confirmation
+    pass
+
+# For customers to view their orders
+@app.route('/api/orders/my', methods=['GET'])
+def get_my_orders():
+    # Get orders for the current user
+    pass
+
+# For pharmacists to view pending orders
+@app.route('/api/orders/pending', methods=['GET'])
+def get_pending_orders():
+    # Get all pending orders
+    pass
+
+# For pharmacists to fulfill orders
+@app.route('/api/orders/<int:order_id>/fulfill', methods=['POST'])
+def fulfill_order(order_id):
+    # Mark order as fulfilled
+    # Update inventory quantities
+    pass
+
+# For pharmacists to reject orders
+@app.route('/api/orders/<int:order_id>/reject', methods=['POST'])
+def reject_order(order_id):
+    # Mark order as rejected
+    # Record rejection reason
+    pass
+
+# For practitioners to create prescriptions
+@app.route('/api/prescriptions', methods=['POST'])
+def create_prescription():
+    # Create a new prescription
+    pass
+
+# For practitioners to view prescriptions
+@app.route('/api/prescriptions', methods=['GET'])
+def get_prescriptions():
+    # Get prescriptions created by the current practitioner
+    pass
+
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=5000)

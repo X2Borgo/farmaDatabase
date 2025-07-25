@@ -88,5 +88,64 @@ const InventoryAPI = {
 
     async healthCheck() {
         return API.get('/health');
+    },
+
+    // Customer API calls
+    async createOrder(orderData) {
+        try {
+            return await API.post('/orders', orderData);
+        } catch (error) {
+            return { success: false, error: error.message };
+        }
+    },
+
+    async getMyOrders() {
+        try {
+            return await API.get('/orders/my');
+        } catch (error) {
+            return { success: false, error: error.message };
+        }
+    },
+
+    // Pharmacist API calls
+    async getPendingOrders() {
+        try {
+            return await API.get('/orders/pending');
+        } catch (error) {
+            return { success: false, error: error.message };
+        }
+    },
+
+    async fulfillOrder(orderId) {
+        try {
+            return await API.post(`/orders/${orderId}/fulfill`, {});
+        } catch (error) {
+            return { success: false, error: error.message };
+        }
+    },
+
+    async rejectOrder(orderId, reason) {
+        try {
+            return await API.post(`/orders/${orderId}/reject`, { reason });
+        } catch (error) {
+            return { success: false, error: error.message };
+        }
+    },
+
+    // Practitioner API calls
+    async createPrescription(prescriptionData) {
+        try {
+            return await API.post('/prescriptions', prescriptionData);
+        } catch (error) {
+            return { success: false, error: error.message };
+        }
+    },
+
+    async getPrescriptions() {
+        try {
+            return await API.get('/prescriptions');
+        } catch (error) {
+            return { success: false, error: error.message };
+        }
     }
 };

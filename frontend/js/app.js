@@ -5,6 +5,17 @@ document.addEventListener('DOMContentLoaded', function() {
     router.addRoute('login', renderLoginPage);
     router.addRoute('signup', renderSignupPage);
     
+    // Customer routes
+    router.addRoute('order', renderOrderPage);
+    router.addRoute('my-orders', renderMyOrdersPage);
+    
+    // Pharmacist routes
+    router.addRoute('pending-orders', renderPendingOrdersPage);
+    
+    // Practitioner routes
+    router.addRoute('create-prescription', renderCreatePrescriptionPage);
+    router.addRoute('prescriptions', renderPrescriptionsPage);
+    
     // Start the router
     router.init();
     

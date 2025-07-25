@@ -9,7 +9,7 @@
   "devDependencies": {},
   "scripts": {
     "dev": "vite",
-    "start": "npm run frontend & npm run backend",
+    "start": "npm run backend & npm run frontend",
     "frontend": "if lsof -t -i:4269; then kill $(lsof -t -i:4269); fi && vite --config vite.config.js",
     "backend": "myLittleFarmaEnv/bin/python backend/endpoints/app.py",
     "build": "vite build",
