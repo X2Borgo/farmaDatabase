@@ -61,26 +61,36 @@ def login():
     conn.close()
 
     if user:
-        return jsonify({'message': 'Login successful', 'token': 'fake-jwt-token'}), 200
+        print(user)
+        user_dict = dict(user)
+        print(user_dict)
+        return jsonify({
+            'message': 'Login successful', 
+            'token': 'fake-jwt-token',
+            'username': user_dict['username'],
+            'role': user_dict['role']
+        }), 200
     return jsonify({'message': 'Invalid credentials'}), 401
 
 @app.route('/api/signup', methods=['POST'])
 def signup():
-	username = request.json.get('username')
-	email = request.json.get('email')
-	password = request.json.get('password')
+    username = request.json.get('username')
+    email = request.json.get('email')
+    password = request.json.get('password')
+    role = request.json.get('role')
 
-	print(f"Creating user: {username}, {email}, {password}")
+    print(f"Creating user: {username}, {email}, {role}")
 
-	conn = get_db_connection()
-	try:
-		conn.execute('INSERT INTO users (username, email, password_hash) VALUES (?, ?, ?)', (username, email, password))
-		conn.commit()
-		return jsonify({'message': 'User created successfully'}), 201
-	except sqlite3.IntegrityError:
-		return jsonify({'message': 'Username already exists'}), 409
-	finally:
-		conn.close()
+    conn = get_db_connection()
+    try:
+        conn.execute('INSERT INTO users (username, email, password_hash, role) VALUES (?, ?, ?, ?)', 
+                    (username, email, password, role))
+        conn.commit()
+        return jsonify({'message': 'User created successfully'}), 201
+    except sqlite3.IntegrityError:
+        return jsonify({'message': 'Username already exists'}), 409
+    finally:
+        conn.close()
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=5000)

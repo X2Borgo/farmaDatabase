@@ -14,6 +14,15 @@ function renderSignupPage() {
                     <input type="email" id="signup-email" name="email" required>
                 </div>
                 <div class="form-group">
+                    <label for="signup-role">Role</label>
+                    <select id="signup-role" name="role" required>
+                        <option value="">-- Select Role --</option>
+                        <option value="customer">Customer</option>
+                        <option value="pharmacist">Pharmacist</option>
+                        <option value="practitioner">General Practitioner</option>
+                    </select>
+                </div>
+                <div class="form-group">
                     <label for="signup-password">Password</label>
                     <input type="password" id="signup-password" name="password" required>
                 </div>
@@ -42,7 +51,8 @@ async function handleSignup(event) {
         username: formData.get('username'),
         email: formData.get('email'),
         password: formData.get('password'),
-        confirmPassword: formData.get('confirmPassword')
+        confirmPassword: formData.get('confirmPassword'),
+        role: formData.get('role')
     };
     
     // Basic validation
@@ -51,8 +61,13 @@ async function handleSignup(event) {
         return;
     }
     
+    if (!userData.role) {
+        alert('Please select a role');
+        return;
+    }
+    
     // For now, just simulate signup (since we haven't implemented auth endpoints yet)
-    if (userData.username && userData.email && userData.password) {
+    if (userData.username && userData.email && userData.password && userData.role) {
         const response = await InventoryAPI.signup(userData);
         if (response.error) {
             alert(`Signup failed: ${response.error}`);

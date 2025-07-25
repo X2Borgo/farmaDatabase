@@ -42,7 +42,10 @@ async function handleLogin(event) {
             alert(`Login failed: ${response.error}`);
             return;
         }
-        localStorage.setItem('token', JSON.stringify({username: credentials.username}));
+        localStorage.setItem('token', JSON.stringify({
+            username: response.username,
+            role: response.role
+        }));
         navigateTo('home');
     } else {
         alert('Please fill in all fields');

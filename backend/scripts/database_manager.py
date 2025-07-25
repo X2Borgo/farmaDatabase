@@ -26,6 +26,7 @@ def init_database():
             username TEXT UNIQUE NOT NULL,
             email TEXT UNIQUE NOT NULL,
             password_hash TEXT NOT NULL,
+            role TEXT NOT NULL,
             created_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )
     ''')

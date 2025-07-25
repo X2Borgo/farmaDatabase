@@ -67,7 +67,12 @@ const InventoryAPI = {
 
     async signup(userData) {
         try {
-            return await API.post('/signup', { username: userData.username, email: userData.email, password: userData.password });
+            return await API.post('/signup', { 
+                username: userData.username, 
+                email: userData.email, 
+                password: userData.password,
+                role: userData.role
+            });
         } catch (error) {
             return { error: error.message || 'Signup failed' };
         }

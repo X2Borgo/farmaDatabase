@@ -1,7 +1,29 @@
 // Home page functionality
 function renderHomePage() {
     const content = document.getElementById('content');
+    
+    // Get user data from localStorage
+    let userInfo = '';
+    const userToken = localStorage.getItem('token');
+    
+    if (userToken) {
+        try {
+            const userData = JSON.parse(userToken);
+            userInfo = `
+                <div class="card mb-1">
+                    <div class="user-info">
+                        <h3>Welcome, ${userData.username}</h3>
+                        <p>Role: ${userData.role || 'N/A'}</p>
+                    </div>
+                </div>
+            `;
+        } catch (e) {
+            console.error('Error parsing user data', e);
+        }
+    }
+    
     content.innerHTML = `
+        ${userInfo}
         <div class="card">
             <h1>Welcome to My Little Farma</h1>
             <p>Manage your pharmacy inventory with ease.</p>
